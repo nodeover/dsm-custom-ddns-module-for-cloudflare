@@ -110,5 +110,6 @@ $update_data = [
 	'content'=>$ip
 ];
 $res = zone_query('dns_records/'.$record_id, $update_data, 'PUT');
-
+echo "good";
+exit();
 ?>
