@@ -1,3 +1,4 @@
+#!/usr/bin/php -d open_basedir=/usr/syno/bin/ddns
 <?php
 # I maade according to description of api document following address.
 # https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
