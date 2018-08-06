@@ -102,14 +102,7 @@ function zone_query($endpoint, $params, $request_type='GET'){
 		print_error(99999);
 	}
 	if(is_null($zone_id)){
-		$res = api_query('zones',['name'=>$zone_host]);
-		// zone query -> no data
-		if($res['result_info']['count'] != 1){
-			var_dump($res);
-			print_error(99999);
-		}
-		print_result($res,true);
-		$zone_id = $res['result'][0]['id'];
+		print_error(99999);
 	}
 	$endpoint = 'zones/'.$zone_id.'/'.$endpoint;
 	return api_query($endpoint, $params, $request_type);
