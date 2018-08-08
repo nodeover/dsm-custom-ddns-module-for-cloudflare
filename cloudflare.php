@@ -1,7 +1,7 @@
 #!/usr/bin/php -d open_basedir=/usr/syno/bin/ddns
 <?php
 # 
-# version : 0.0.1 
+# version : 0.0.2
 #
 # Followed this documentation : https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
 #
@@ -13,10 +13,8 @@
 # $ vi /usr/syno/bin/ddns/cloudflare.php
 # copy this sourcecode.
 #
-
 $api_url = 'https://api.cloudflare.com/client/v4/';
 $zone_id = NULL;
-
 function print_error($error_code){
 	switch ($error_code) {
 		case 9103:
@@ -39,7 +37,6 @@ function print_error($error_code){
 	}
 	exit(1);
 }
-
 function print_result($res, $only_error=false){
 	if($res['success']){
 		if($only_error==false){
@@ -52,7 +49,6 @@ function print_result($res, $only_error=false){
 		print_error($error_code);
 	}
 }
-
 function api_query($endpoint, $params, $request_type='GET'){
 	global $auth_email, $auth_key, $api_url;
 	
@@ -95,7 +91,6 @@ function api_query($endpoint, $params, $request_type='GET'){
 	curl_close($curl);
 	return json_decode($res, true);
 }
-
 function zone_query($endpoint, $params, $request_type='GET'){
 	global $zone_id,$zone_host;
 	if(empty($zone_host)){
@@ -107,12 +102,10 @@ function zone_query($endpoint, $params, $request_type='GET'){
 	$endpoint = 'zones/'.$zone_id.'/'.$endpoint;
 	return api_query($endpoint, $params, $request_type);
 }
-
 //////////////////////////////////////////////////////
 if ($argc !== 5) {
 	print_error(90000);
 }
-
 $auth_email = (string)$argv[1];
 $auth_key = (string)$argv[2];
 $hostname = (string)$argv[3];
@@ -125,7 +118,6 @@ if (strpos($hostname, '.') === false) {
 if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
 	print_error(90000);
 }
-
 $zone_host = $hostname;
 if(substr_count($hostname, ".")!== 1){
 	global $zone_id;
@@ -143,12 +135,20 @@ if(substr_count($hostname, ".")!== 1){
 		}
 	}
 	else{
-		$zone_id = $res['result'][0]['id'];		
+		$zone_id = $res['result'][0]['id'];
 	}
+} else{
+	global $zone_id;
+	$res = api_query('zones',['name'=>$zone_host]);
+	print_result($res,true);
+	$zone_id = $res['result'][0]['id'];
 }
 
 // zone query
-$res = zone_query('dns_records',['name'=>$hostname]);
+$res = zone_query('dns_records',[
+	'name'=>$hostname,
+	'type'=>'A'
+]);
 print_result($res, true);
 if($res['result_info']['count'] !== 1){
 	print_error(7000);
